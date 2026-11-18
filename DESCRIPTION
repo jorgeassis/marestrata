@@ -1,13 +1,13 @@
 Package: marestrata
 Type: Package
-Title: Access MareStrata Ocean Climate Layers
+Title: MareStrata: Ocean Climate Layers Through the Water Column
 Version: 0.1.0
 Authors@R: person("Jorge", "Assis", email = "jorgemfa@gmail.com", role = c("aut", "cre"))
-Description: MareStrata is a dataset of ocean climate layers that extend
-    Bio-ORACLE across the water column and individual Earth System Models.
-    Query the MareStrata catalog and open the matching tiled GeoTIFFs with
-    terra from a local directory or over HTTPS. A longitude and latitude
-    extent is read as a window, so only that region is transferred.
+Description: MareStrata provides ocean climate layers through the water
+    column, extending Bio-ORACLE across depth and individual Earth System
+    Models. Query the catalog and open matching tiled GeoTIFFs with terra
+    from a local directory or over HTTPS. A longitude and latitude extent
+    is read as a window, so only that region is transferred.
 License: MIT + file LICENSE
 URL: https://biodiversitydatascience.com
 Depends: R (>= 4.0)

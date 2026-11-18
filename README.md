@@ -1,8 +1,8 @@
-# marestrata
+# MareStrata
 
-MareStrata is a dataset of ocean climate layers that extend [Bio-ORACLE](https://www.bio-oracle.org) across the water column and individual Earth System Models.
+Ocean climate layers through the water column
 
-This R package queries the MareStrata catalog and opens the matching layers with [terra](https://rspatial.github.io/terra/). The GeoTIFFs are tiled, so an extent is read as a window. Over HTTP only that region is transferred. Locally, only that window is read from disk.
+MareStrata extends [Bio-ORACLE](https://www.bio-oracle.org) across depth and individual Earth System Models. This R package queries the catalog and opens the matching layers with [terra](https://rspatial.github.io/terra/). The GeoTIFFs are tiled, so an extent is read as a window. Over HTTP only that region is transferred. Locally, only that window is read from disk.
 
 ## Install
 
