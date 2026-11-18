@@ -1,0 +1,3 @@
+cd '/Users/jorgeassis/CCMAR Dropbox/Jorge Assis/biodiversityDS/gitRepositories/bioORACLE'
+export BLUE_ARRAY_ROOT=/Volumes/JellyFish
+Rscript marestrata/data-raw/build_catalog.R
