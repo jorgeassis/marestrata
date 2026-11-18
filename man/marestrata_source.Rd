@@ -15,14 +15,14 @@ The source, without a trailing slash, or \code{NULL} when none is set.
 }
 \description{
 Layers are read from this location. Pass an \verb{http://} or \verb{https://} URL, or
-a local directory that contains the \verb{BLUE-ARRAY …} folders. The catalog at
+a local directory that contains the \verb{MareStrata …} folders. The catalog at
 the source is \code{{source}/catalog.csv}. The environment variable
 \code{MARESTRATA_URL} is used when no source has been set in the session.
 }
 \examples{
 marestrata_source("https://data.example.org/marestrata")
 \dontrun{
-marestrata_source("/Volumes/JellyFish")
+marestrata_source("/data/marestrata")
 }
 marestrata_source()
 }

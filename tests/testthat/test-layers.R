@@ -93,7 +93,7 @@ test_that("a combined query returns one file and encodes the url by path segment
   expect_equal(mean_row$source_variable, "thetao")
   expect_equal(
     mean_row$url,
-    "https://data.example.org/marestrata/BLUE-ARRAY%20005/decadal/sea_water_temperature/clim_copernicus_thetao_baseline_2010_2019_layer0_mean_wgs84.tif"
+    "https://data.example.org/marestrata/MareStrata%20005/decadal/sea_water_temperature/clim_copernicus_thetao_baseline_2010_2019_layer0_mean_wgs84.tif"
   )
 })
 
@@ -123,7 +123,7 @@ test_that("a local directory is joined as a file path", {
   expect_equal(nrow(layers), 1)
   expect_equal(
     layers$url,
-    file.path(normalizePath(root, winslash = "/"), "BLUE-ARRAY 005", "decadal", "sea_water_salinity", layers$file)
+    file.path(normalizePath(root, winslash = "/"), "MareStrata 005", "decadal", "sea_water_salinity", layers$file)
   )
 })
 
@@ -134,7 +134,20 @@ test_that("the bundled catalog has one row per published layer", {
   expect_false("thetao" %in% catalog$variable)
   expect_true("thetao" %in% catalog$source_variable)
   expect_true(all(catalog$resolution %in% c(0.05, 0.25)))
-  expect_true(all(grepl("^BLUE-ARRAY ", catalog$path)))
+  expect_true(all(grepl("^MareStrata ", catalog$path)))
+  expect_false(any(grepl("BLUE-ARRAY", catalog$path)))
   # One published bottom-light file is named with a repeated .tif suffix.
   expect_true(all(grepl("_wgs84\\.tif(\\.tif)?$", catalog$file)))
+})
+
+test_that("local MareStrata paths fall back to previous folder names when needed", {
+  root <- file.path(tempdir(), "marestrata-legacy-root")
+  legacy <- file.path(root, "BLUE-ARRAY 005", "decadal", "sea_water_salinity")
+  dir.create(legacy, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+  file <- "clim_copernicus_so_baseline_2010_2019_layer0_mean_wgs84.tif"
+  writeLines("tif", file.path(legacy, file))
+  branded <- file.path(root, "MareStrata 005", "decadal", "sea_water_salinity", file)
+  expect_false(file.exists(branded))
+  expect_equal(marestrata:::.resolve_local_path(branded), file.path(legacy, file))
 })

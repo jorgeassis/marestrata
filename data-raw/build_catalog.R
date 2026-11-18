@@ -1,7 +1,9 @@
 # Build the MareStrata layer catalog.
 #
-# By default this unpacks viewer/catalog.json. Set BLUE_ARRAY_ROOT to a data
-# volume to scan BLUE-ARRAY folders instead.
+# By default this unpacks viewer/catalog.json. Set MARESTRATA_ROOT to a data
+# volume to scan MareStrata folders instead. Local volumes that still use the
+# previous folder names are scanned, but catalog paths are written as
+# MareStrata 005 / MareStrata 025.
 #
 # Writes:
 #   marestrata/inst/extdata/catalog.csv.gz
@@ -110,6 +112,21 @@ resolution_number <- function(code) {
   ifelse(code %in% c("005", "5", "0.05"), 0.05, ifelse(code %in% c("025", "25", "0.25"), 0.25, NA_real_))
 }
 
+.product_dir <- function(resolution_code) {
+  sprintf("MareStrata %s", resolution_code)
+}
+
+.scan_product_dir <- function(root, resolution_code) {
+  candidates <- c(
+    .product_dir(resolution_code),
+    sprintf("BLUE-ARRAY %s", resolution_code)
+  )
+  for (name in candidates) {
+    if (dir.exists(file.path(root, name))) return(name)
+  }
+  NULL
+}
+
 empty_records <- function() {
   data.frame(
     resolution_code = character(),
@@ -159,8 +176,10 @@ records_from_disk <- function(root, known) {
   period_types <- c("decadal", "annual")
   rows <- list()
   for (resolution in resolutions) {
+    product <- .scan_product_dir(root, resolution)
+    if (is.null(product)) next
     for (period_type in period_types) {
-      directory <- file.path(root, sprintf("BLUE-ARRAY %s", resolution), period_type)
+      directory <- file.path(root, product, period_type)
       if (!dir.exists(directory)) next
       folders <- list.dirs(directory, full.names = FALSE, recursive = FALSE)
       folders <- folders[!startsWith(folders, ".")]
@@ -208,7 +227,7 @@ assemble_catalog <- function(records, variables) {
   # Package variable names are the on-disk folder names (sea_water_temperature).
   # The short CF token from the filename is kept as source_variable (thetao).
   catalog <- data.frame(
-    path = paste(sprintf("BLUE-ARRAY %s", records$resolution_code), records$period_type, records$folder, records$file, sep = "/"),
+    path = paste(.product_dir(records$resolution_code), records$period_type, records$folder, records$file, sep = "/"),
     resolution = resolution_number(records$resolution_code),
     period_type = records$period_type,
     variable = records$folder,
@@ -260,9 +279,9 @@ write_catalog <- function(catalog, pkg_dir) {
 }
 
 variables <- read_variables(variables_path)
-data_root <- Sys.getenv("BLUE_ARRAY_ROOT", unset = "")
+data_root <- Sys.getenv("MARESTRATA_ROOT", unset = "")
 if (nzchar(data_root)) {
-  if (!dir.exists(data_root)) stop("BLUE_ARRAY_ROOT is not a directory: ", data_root)
+  if (!dir.exists(data_root)) stop("MARESTRATA_ROOT is not a directory: ", data_root)
   message("Scanning ", data_root)
   records <- records_from_disk(data_root, known_variables(variables))
 } else {

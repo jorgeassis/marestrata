@@ -52,9 +52,21 @@
   windows
 }
 
+.resolve_local_path <- function(location) {
+  if (file.exists(location)) return(location)
+  # Temporary bridge while local volumes still use the previous folder names.
+  alt <- sub("(^|/)MareStrata ", "\\1BLUE-ARRAY ", location)
+  if (!identical(alt, location) && file.exists(alt)) return(alt)
+  location
+}
+
 .open_source <- function(location, windows) {
   remote <- grepl("^https?://", location, ignore.case = TRUE)
-  src <- if (remote) paste0("/vsicurl/", location) else location
+  src <- if (remote) {
+    paste0("/vsicurl/", location)
+  } else {
+    .resolve_local_path(location)
+  }
   if (is.null(windows)) return(terra::rast(src))
   pieces <- lapply(windows, function(window) {
     raster <- terra::rast(
@@ -126,7 +138,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' marestrata_source("/Volumes/JellyFish")
+#' marestrata_source("/data/marestrata")
 #' marestrata_load(
 #'   variable = "sea_water_temperature",
 #'   predictor = c("mean", "max"),

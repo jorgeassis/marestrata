@@ -1,6 +1,8 @@
 # marestrata
 
-Query the MareStrata catalog and open the matching ocean climate layers with [terra](https://rspatial.github.io/terra/). The GeoTIFFs are tiled, so an extent is read as a window. Over HTTP only that region is transferred. Locally, only that window is read from disk.
+MareStrata is a dataset of ocean climate layers that extend [Bio-ORACLE](https://www.bio-oracle.org) across the water column and individual Earth System Models.
+
+This R package queries the MareStrata catalog and opens the matching layers with [terra](https://rspatial.github.io/terra/). The GeoTIFFs are tiled, so an extent is read as a window. Over HTTP only that region is transferred. Locally, only that window is read from disk.
 
 ## Install
 
@@ -11,11 +13,11 @@ devtools::install("marestrata")
 
 ## Use
 
-Set the data source once. It can be an HTTP(S) URL or a local directory that contains the `BLUE-ARRAY …` folders. The catalog at that source is `catalog.csv`. `marestrata_layers()` only filters the catalog. `marestrata_load()` opens the GeoTIFFs.
+Set the data source once. It can be an HTTP(S) URL or a local directory that contains the `MareStrata …` folders. The catalog at that source is `catalog.csv`. `marestrata_layers()` only filters the catalog. `marestrata_load()` opens the GeoTIFFs.
 
 ```r
-# Local volume
-marestrata_source("/Volumes/JellyFish")
+# Local archive
+marestrata_source("/data/marestrata")
 
 # Or a web domain
 # marestrata_source("https://data.example.org/marestrata")
@@ -54,7 +56,7 @@ A request that matches more than 24 files stops unless `allow_many = TRUE`.
 
 One row per `*_wgs84.tif`. Mollweide files are not listed.
 
-- `path` — relative path, including the `BLUE-ARRAY 005` or `BLUE-ARRAY 025` folder and the filename
+- `path` — relative path, including the `MareStrata 005` or `MareStrata 025` folder and the filename
 - `resolution` — `0.05` or `0.25`
 - `period_type` — `decadal` or `annual`
 - `variable` — package name, e.g. `sea_water_temperature`
@@ -66,7 +68,7 @@ One row per `*_wgs84.tif`. Mollweide files are not listed.
 - `predictor` — `min`, `ltmin`, `mean`, `ltmax`, `max`, or `range`
 - `file` — GeoTIFF file name
 
-HTTP paths are joined one folder at a time, so `BLUE-ARRAY 005` is requested as `BLUE-ARRAY%20005`. Local paths keep the space.
+HTTP paths are joined one folder at a time, so `MareStrata 005` is requested as `MareStrata%20005`. Local paths keep the space.
 
 Rebuild the snapshot from `viewer/catalog.json` with:
 
@@ -74,4 +76,4 @@ Rebuild the snapshot from `viewer/catalog.json` with:
 Rscript marestrata/data-raw/build_catalog.R
 ```
 
-That writes `marestrata/inst/extdata/catalog.csv.gz` and `marestrata/data-raw/catalog.csv`. Place the uncompressed file at the source root as `catalog.csv` (for example `/Volumes/JellyFish/catalog.csv`, or on the web domain). To build the catalog from the data volume instead, set `BLUE_ARRAY_ROOT` to that volume before running the script.
+That writes `marestrata/inst/extdata/catalog.csv.gz` and `marestrata/data-raw/catalog.csv`. Place the uncompressed file at the source root as `catalog.csv`. To build the catalog from the data volume instead, set `MARESTRATA_ROOT` to that volume before running the script.

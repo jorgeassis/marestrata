@@ -4,9 +4,12 @@
 \name{marestrata-package}
 \alias{marestrata}
 \alias{marestrata-package}
-\title{marestrata: Subset MareStrata Ocean Climate Layers over HTTPS}
+\title{marestrata: Access MareStrata Ocean Climate Layers}
 \description{
-Query a catalog of MareStrata ocean climate layers and open the matching tiled GeoTIFFs with terra over HTTPS. A longitude and latitude extent is read as a window, so only that region is transferred.
+MareStrata is a dataset of ocean climate layers that extend Bio-ORACLE
+across the water column and individual Earth System Models. This package
+queries the MareStrata catalog and opens matching tiled GeoTIFFs with terra
+from a local directory or over HTTPS.
 }
 \seealso{
 Useful links:

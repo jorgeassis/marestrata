@@ -35,7 +35,7 @@ the eastern side is shifted by 360 degrees, and the pieces are merged.
 }
 \examples{
 \dontrun{
-marestrata_source("/Volumes/JellyFish")
+marestrata_source("/data/marestrata")
 marestrata_load(
   variable = "sea_water_temperature",
   predictor = c("mean", "max"),

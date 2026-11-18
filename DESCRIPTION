@@ -1,10 +1,12 @@
 Package: marestrata
 Type: Package
-Title: Subset MareStrata Ocean Climate Layers over HTTPS
+Title: Access MareStrata Ocean Climate Layers
 Version: 0.1.0
 Authors@R: person("Jorge", "Assis", email = "jorgemfa@gmail.com", role = c("aut", "cre"))
-Description: Query a catalog of MareStrata ocean climate layers and open the
-    matching tiled GeoTIFFs with terra over HTTPS. A longitude and latitude
+Description: MareStrata is a dataset of ocean climate layers that extend
+    Bio-ORACLE across the water column and individual Earth System Models.
+    Query the MareStrata catalog and open the matching tiled GeoTIFFs with
+    terra from a local directory or over HTTPS. A longitude and latitude
     extent is read as a window, so only that region is transferred.
 License: MIT + file LICENSE
 URL: https://biodiversitydatascience.com

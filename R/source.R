@@ -1,7 +1,7 @@
 #' Set or return the MareStrata data source
 #'
 #' Layers are read from this location. Pass an `http://` or `https://` URL, or
-#' a local directory that contains the `BLUE-ARRAY …` folders. The catalog at
+#' a local directory that contains the `MareStrata …` folders. The catalog at
 #' the source is `{source}/catalog.csv`. The environment variable
 #' `MARESTRATA_URL` is used when no source has been set in the session.
 #'
@@ -12,7 +12,7 @@
 #' @examples
 #' marestrata_source("https://data.example.org/marestrata")
 #' \dontrun{
-#' marestrata_source("/Volumes/JellyFish")
+#' marestrata_source("/data/marestrata")
 #' }
 #' marestrata_source()
 marestrata_source <- function(base_url = NULL) {
