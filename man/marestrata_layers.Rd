@@ -12,8 +12,8 @@ marestrata_layers(
   model = NULL,
   experiment = NULL,
   period = NULL,
-  resolution = NULL,
-  period_type = NULL,
+  resolution = 0.05,
+  period_type = "decadal",
   catalog = NULL
 )
 }
@@ -34,9 +34,9 @@ product stem (\code{slope}), or an alias.}
 
 \item{period}{Period token, such as \code{"2010_2019"}, or \code{c(start, end)}.}
 
-\item{resolution}{\code{0.05} or \code{0.25}.}
+\item{resolution}{Unused in most workflows; defaults to \code{0.05}.}
 
-\item{period_type}{\code{"decadal"} or \code{"annual"}.}
+\item{period_type}{Unused in most workflows; defaults to \code{"decadal"}.}
 
 \item{catalog}{Optional catalog from \code{\link[=marestrata_catalog]{marestrata_catalog()}}. The package catalog is used when this is omitted.}
 }
@@ -65,8 +65,7 @@ marestrata_layers(
   depth = 0,
   model = "ensemble",
   experiment = "ssp585",
-  period = "2090_2099",
-  resolution = 0.05
+  period = "2090_2099"
 )
 marestrata_layers(variable = "geomorphologic_features", layer = "slope")
 }

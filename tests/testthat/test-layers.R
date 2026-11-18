@@ -150,11 +150,12 @@ test_that("geomorphologic features can be selected by folder or product stem", {
     variable = "geomorphologic_features",
     catalog = catalog
   ))
-  expect_equal(nrow(all_features), 4)
+  expect_equal(nrow(all_features), 3)
+  expect_true(all(abs(all_features$resolution - 0.05) < 1e-6))
+  expect_true(all(all_features$period_type == "decadal"))
   slope <- without_source(marestrata_layers(
     variable = "geomorphologic_features",
     layer = "slope",
-    resolution = 0.05,
     catalog = catalog
   ))
   expect_equal(nrow(slope), 1)

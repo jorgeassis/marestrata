@@ -229,8 +229,8 @@
 #' @param model Climate model name. Matching ignores case.
 #' @param experiment Experiment name, such as `"baseline"` or `"ssp126"`.
 #' @param period Period token, such as `"2010_2019"`, or `c(start, end)`.
-#' @param resolution `0.05` or `0.25`.
-#' @param period_type `"decadal"` or `"annual"`.
+#' @param resolution Unused in most workflows; defaults to `0.05`.
+#' @param period_type Unused in most workflows; defaults to `"decadal"`.
 #' @param catalog Optional catalog from [marestrata_catalog()]. The package catalog is used when this is omitted.
 #' @return A data frame of matching layers, with a `url` column. That column
 #'   holds an HTTP URL or a local file path. It is missing until
@@ -245,8 +245,7 @@
 #'   depth = 0,
 #'   model = "ensemble",
 #'   experiment = "ssp585",
-#'   period = "2090_2099",
-#'   resolution = 0.05
+#'   period = "2090_2099"
 #' )
 #' marestrata_layers(variable = "geomorphologic_features", layer = "slope")
 #' }
@@ -258,8 +257,8 @@ marestrata_layers <- function(
     model = NULL,
     experiment = NULL,
     period = NULL,
-    resolution = NULL,
-    period_type = NULL,
+    resolution = 0.05,
+    period_type = "decadal",
     catalog = NULL
 ) {
   catalog <- if (is.null(catalog)) marestrata_catalog() else .normalize_catalog(catalog)
