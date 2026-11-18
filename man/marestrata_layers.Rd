@@ -8,6 +8,7 @@ marestrata_layers(
   variable = NULL,
   predictor = NULL,
   depth = NULL,
+  layer = NULL,
   model = NULL,
   experiment = NULL,
   period = NULL,
@@ -17,11 +18,15 @@ marestrata_layers(
 )
 }
 \arguments{
-\item{variable}{Package variable name (\code{sea_water_temperature}), or an alias.}
+\item{variable}{Package variable name (\code{sea_water_temperature}), geomorphologic
+product stem (\code{slope}), or an alias.}
 
 \item{predictor}{Predictor token or label.}
 
 \item{depth}{Depth in metres, or a bottom-layer name.}
+
+\item{layer}{Climate depth token (\code{layer0}) or geomorphologic product stem
+(\code{slope}). Matching ignores case.}
 
 \item{model}{Climate model name. Matching ignores case.}
 
@@ -44,10 +49,12 @@ holds an HTTP URL or a local file path. It is missing until
 Filters the catalog. Nothing is downloaded. \code{variable} is the package name
 such as \code{sea_water_temperature} or \code{sea_water_salinity}. Long names,
 standard names, folder names, and short CF tokens (\code{thetao}) are accepted as
-aliases. \code{predictor} accepts tokens (\code{ltmin}) and labels
-(\code{"Long-term minimum"}). \code{depth} accepts metres, \code{"surface"}, \code{"bottom"},
-\code{"bottom_min"}, \code{"bottom_mean"}, and \code{"bottom_max"}. \code{period} accepts
-\code{"2010_2019"} or \code{c(2010, 2019)}.
+aliases. Geomorphologic products are listed under
+\code{geomorphologic_features}; product stems such as \code{slope} or
+\code{bathymetry_mean} are also accepted. \code{predictor} accepts tokens (\code{ltmin})
+and labels (\code{"Long-term minimum"}). \code{depth} accepts metres, \code{"surface"},
+\code{"bottom"}, \code{"bottom_min"}, \code{"bottom_mean"}, and \code{"bottom_max"}. \code{period}
+accepts \code{"2010_2019"} or \code{c(2010, 2019)}.
 }
 \examples{
 \dontrun{
@@ -61,5 +68,6 @@ marestrata_layers(
   period = "2090_2099",
   resolution = 0.05
 )
+marestrata_layers(variable = "geomorphologic_features", layer = "slope")
 }
 }

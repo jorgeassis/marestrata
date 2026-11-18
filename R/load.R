@@ -87,9 +87,19 @@
     sub("^bottomlayer", "bottom_", layers$layer),
     ifelse(!is.na(layers$depth_m), paste0(layers$depth_m, "m"), layers$layer)
   )
-  labels <- paste(layers$variable, depth, layers$predictor, sep = "_")
+  has_predictor <- !is.na(layers$predictor) & nzchar(layers$predictor)
+  is_geomorph <- layers$variable == "geomorphologic_features"
+  labels <- ifelse(
+    is_geomorph,
+    paste(layers$variable, layers$layer, sep = "_"),
+    ifelse(
+      has_predictor,
+      paste(layers$variable, depth, layers$predictor, sep = "_"),
+      paste(layers$variable, depth, sep = "_")
+    )
+  )
   append_when_varied <- function(labels, values, prefix) {
-    present <- values[!is.na(values)]
+    present <- values[!is.na(values) & nzchar(as.character(values))]
     if (length(unique(present)) <= 1L) return(labels)
     paste0(labels, "_", prefix, values)
   }
@@ -147,6 +157,12 @@
 #'   experiment = "ssp585",
 #'   period = "2090_2099",
 #'   resolution = 0.25,
+#'   extent = c(-15, -5, 35, 45)
+#' )
+#' marestrata_load(
+#'   variable = "geomorphologic_features",
+#'   layer = "slope",
+#'   resolution = 0.05,
 #'   extent = c(-15, -5, 35, 45)
 #' )
 #' }

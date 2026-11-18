@@ -46,5 +46,11 @@ marestrata_load(
   resolution = 0.25,
   extent = c(-15, -5, 35, 45)
 )
+marestrata_load(
+  variable = "geomorphologic_features",
+  layer = "slope",
+  resolution = 0.05,
+  extent = c(-15, -5, 35, 45)
+)
 }
 }

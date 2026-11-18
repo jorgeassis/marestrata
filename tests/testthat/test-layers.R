@@ -133,11 +133,41 @@ test_that("the bundled catalog has one row per published layer", {
   expect_true("sea_water_temperature" %in% catalog$variable)
   expect_false("thetao" %in% catalog$variable)
   expect_true("thetao" %in% catalog$source_variable)
+  expect_true("geomorphologic_features" %in% catalog$variable)
+  expect_true("slope" %in% catalog$layer)
   expect_true(all(catalog$resolution %in% c(0.05, 0.25)))
   expect_true(all(grepl("^MareStrata ", catalog$path)))
   expect_false(any(grepl("BLUE-ARRAY", catalog$path)))
+  climate <- catalog$variable != "geomorphologic_features"
   # One published bottom-light file is named with a repeated .tif suffix.
-  expect_true(all(grepl("_wgs84\\.tif(\\.tif)?$", catalog$file)))
+  expect_true(all(grepl("_wgs84\\.tif(\\.tif)?$", catalog$file[climate])))
+  expect_true(all(grepl("\\.tif$", catalog$file[!climate], ignore.case = TRUE)))
+})
+
+test_that("geomorphologic features can be selected by folder or product stem", {
+  catalog <- fixture_catalog()
+  all_features <- without_source(marestrata_layers(
+    variable = "geomorphologic_features",
+    catalog = catalog
+  ))
+  expect_equal(nrow(all_features), 4)
+  slope <- without_source(marestrata_layers(
+    variable = "geomorphologic_features",
+    layer = "slope",
+    resolution = 0.05,
+    catalog = catalog
+  ))
+  expect_equal(nrow(slope), 1)
+  expect_equal(slope$file, "slope.tif")
+  by_stem <- without_source(marestrata_layers(variable = "bathymetry_mean", catalog = catalog))
+  expect_equal(nrow(by_stem), 1)
+  eulittoral <- without_source(marestrata_layers(
+    variable = "eulittoral_zone",
+    experiment = "ssp585",
+    catalog = catalog
+  ))
+  expect_equal(nrow(eulittoral), 1)
+  expect_equal(eulittoral$file, "eulittoral_zone_SSP585.tif")
 })
 
 test_that("local MareStrata paths fall back to previous folder names when needed", {

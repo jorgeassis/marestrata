@@ -48,7 +48,16 @@ r <- marestrata_load(
 
 A request that matches more than 24 files stops unless `allow_many = TRUE`.
 
-`variable` is the package name (`sea_water_temperature`, `sea_water_salinity`). Long names, standard names, and short CF tokens (`thetao`) still work as aliases. `predictor` accepts `min`, `ltmin`, `mean`, `ltmax`, `max`, `range`, or labels such as `"Long-term minimum"`. `depth` accepts metres, `"surface"`, `"bottom"`, `"bottom_min"`, `"bottom_mean"`, or `"bottom_max"`. `period` accepts `"2010_2019"` or `c(2010, 2019)`. `resolution` is `0.05` or `0.25`.
+`variable` is the package name (`sea_water_temperature`, `sea_water_salinity`). Long names, standard names, and short CF tokens (`thetao`) still work as aliases. Geomorphologic products are under `geomorphologic_features`; product stems such as `slope` or `bathymetry_mean` are also accepted, and `layer` can select them. `predictor` accepts `min`, `ltmin`, `mean`, `ltmax`, `max`, `range`, or labels such as `"Long-term minimum"`. `depth` accepts metres, `"surface"`, `"bottom"`, `"bottom_min"`, `"bottom_mean"`, or `"bottom_max"`. `period` accepts `"2010_2019"` or `c(2010, 2019)`. `resolution` is `0.05` or `0.25`.
+
+```r
+slope <- marestrata_load(
+  variable = "geomorphologic_features",
+  layer = "slope",
+  resolution = 0.05,
+  extent = c(-15, -5, 35, 45)
+)
+```
 
 `MARESTRATA_URL` is used when `marestrata_source()` has not been called. It may be a URL or a local directory. `marestrata_catalog(refresh = TRUE)` loads a new catalog from `{source}/catalog.csv`. Otherwise the package uses the session copy, then the last cache for this source, then the catalog shipped with the package.
 
@@ -59,13 +68,13 @@ One row per `*_wgs84.tif`. Mollweide files are not listed.
 - `path` — relative path, including the `MareStrata 005` or `MareStrata 025` folder and the filename
 - `resolution` — `0.05` or `0.25`
 - `period_type` — `decadal` or `annual`
-- `variable` — package name, e.g. `sea_water_temperature`
-- `source_variable` — short CF token from the filename, e.g. `thetao`
+- `variable` — package name, e.g. `sea_water_temperature`, or `geomorphologic_features`
+- `source_variable` — short CF token from the filename, e.g. `thetao`, or the geomorphologic product stem
 - `long_name`, `standard_name`, `units`, `folder`
-- `model`, `experiment`, `period`, `year_start`, `year_end`
-- `layer` — `layer0`, `layer25`, … or `bottomlayermin`, `bottomlayermean`, `bottomlayermax`
-- `depth_m` — metres, empty for bottom layers
-- `predictor` — `min`, `ltmin`, `mean`, `ltmax`, `max`, or `range`
+- `model`, `experiment`, `period`, `year_start`, `year_end` — empty for most static geomorphologic products
+- `layer` — `layer0`, `layer25`, …, `bottomlayermin` / `mean` / `max`, or a geomorphologic product stem (`slope`)
+- `depth_m` — metres, empty for bottom layers and static products
+- `predictor` — `min`, `ltmin`, `mean`, `ltmax`, `max`, or `range` (empty for static products)
 - `file` — GeoTIFF file name
 
 HTTP paths are joined one folder at a time, so `MareStrata 005` is requested as `MareStrata%20005`. Local paths keep the space.

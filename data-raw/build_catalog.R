@@ -143,6 +143,41 @@ empty_records <- function() {
   )
 }
 
+# Static products under geomorphologic_features/ (slope.tif, bathymetry_mean.tif, …).
+.parse_static_feature <- function(filename) {
+  stem <- basename(filename)
+  while (grepl("\\.tif$", stem, ignore.case = TRUE)) {
+    stem <- substr(stem, 1L, nchar(stem) - 4L)
+  }
+  if (!nzchar(stem) || startsWith(tolower(stem), "clim_") || startsWith(tolower(stem), "anom_")) {
+    return(NULL)
+  }
+  if (grepl("^eulittoral_zone_", stem, ignore.case = TRUE)) {
+    suffix <- sub("^eulittoral_zone_", "", stem, ignore.case = TRUE)
+    experiment <- if (tolower(suffix) == "baseline") {
+      "baseline"
+    } else {
+      tolower(suffix)
+    }
+    return(list(
+      variable = "eulittoral_zone",
+      model = "",
+      experiment = experiment,
+      period = "",
+      layer = "eulittoral_zone",
+      predictor = ""
+    ))
+  }
+  list(
+    variable = stem,
+    model = "",
+    experiment = "",
+    period = "",
+    layer = stem,
+    predictor = ""
+  )
+}
+
 records_from_json <- function(path) {
   if (!requireNamespace("jsonlite", quietly = TRUE)) {
     stop("Install jsonlite to unpack viewer/catalog.json.")
@@ -186,6 +221,24 @@ records_from_disk <- function(root, known) {
       for (folder in folders) {
         files <- list.files(file.path(directory, folder), pattern = "\\.tif$", ignore.case = TRUE)
         for (file in files) {
+          if (identical(folder, "geomorphologic_features")) {
+            parsed <- .parse_static_feature(file)
+            if (is.null(parsed)) next
+            rows[[length(rows) + 1L]] <- data.frame(
+              resolution_code = resolution,
+              period_type = period_type,
+              folder = folder,
+              file = file,
+              variable = parsed$variable,
+              model = parsed$model,
+              experiment = parsed$experiment,
+              period = parsed$period,
+              layer = parsed$layer,
+              predictor = parsed$predictor,
+              stringsAsFactors = FALSE
+            )
+            next
+          }
           parsed <- parse_clim_filename(file, known)
           if (is.null(parsed) || parsed$prefix != "clim" || parsed$proj != "wgs84") next
           rows[[length(rows) + 1L]] <- data.frame(
@@ -212,33 +265,45 @@ records_from_disk <- function(root, known) {
 assemble_catalog <- function(records, variables) {
   if (!nrow(records)) stop("No layers were found for the catalog.")
   index <- match(tolower(records$variable), tolower(variables$name))
-  missing <- sort(unique(records$variable[is.na(index)]))
+  missing <- sort(unique(records$variable[is.na(index) & records$folder != "geomorphologic_features"]))
   if (length(missing)) {
     message("Variables not in listVariables.csv: ", paste(missing, collapse = ", "))
   }
-  period_parts <- strsplit(records$period, "_", fixed = TRUE)
-  year_start <- as.integer(vapply(period_parts, function(parts) parts[1], character(1)))
+  period_text <- ifelse(is.na(records$period), "", as.character(records$period))
+  period_parts <- strsplit(period_text, "_", fixed = TRUE)
+  year_start <- as.integer(vapply(period_parts, function(parts) {
+    if (!length(parts) || !nzchar(parts[1])) NA_character_ else parts[1]
+  }, character(1)))
   year_end <- as.integer(vapply(period_parts, function(parts) {
-    if (length(parts) >= 2L) parts[2] else NA_character_
+    if (length(parts) >= 2L && nzchar(parts[2])) parts[2] else NA_character_
   }, character(1)))
   depth_m <- rep(NA_integer_, nrow(records))
   is_depth <- grepl("^layer[0-9]+$", records$layer)
   depth_m[is_depth] <- as.integer(sub("^layer", "", records$layer[is_depth]))
   # Package variable names are the on-disk folder names (sea_water_temperature).
   # The short CF token from the filename is kept as source_variable (thetao).
+  # Static geomorphologic products keep the product stem as source_variable/layer.
+  long_name <- variables$longName[index]
+  standard_name <- variables$standardName[index]
+  units <- variables$units[index]
+  static <- records$folder == "geomorphologic_features"
+  if (any(static)) {
+    long_name[static & is.na(long_name)] <- records$variable[static & is.na(long_name)]
+    standard_name[static & is.na(standard_name)] <- records$variable[static & is.na(standard_name)]
+  }
   catalog <- data.frame(
     path = paste(.product_dir(records$resolution_code), records$period_type, records$folder, records$file, sep = "/"),
     resolution = resolution_number(records$resolution_code),
     period_type = records$period_type,
     variable = records$folder,
     source_variable = records$variable,
-    long_name = variables$longName[index],
-    standard_name = variables$standardName[index],
-    units = variables$units[index],
+    long_name = long_name,
+    standard_name = standard_name,
+    units = units,
     folder = records$folder,
     model = records$model,
     experiment = records$experiment,
-    period = records$period,
+    period = period_text,
     year_start = year_start,
     year_end = year_end,
     layer = records$layer,

@@ -48,7 +48,8 @@
   !is.na(values) & nzchar(values) & tolower(values) == folded
 }
 
-# Match package names broadly. Short CF tokens and standard names stay row-specific.
+# Match package names broadly. Short CF tokens, geomorphologic product stems,
+# and standard names stay row-specific.
 .resolve_variable_rows <- function(variable, catalog) {
   if (is.null(variable)) return(NULL)
   requested <- .require_text(variable, "variable")
@@ -58,7 +59,8 @@
     folded <- tolower(key)
     hit <- .column_equals(catalog$variable, folded) |
       .column_equals(catalog$folder, folded) |
-      .column_equals(catalog$long_name, folded)
+      .column_equals(catalog$long_name, folded) |
+      .column_equals(catalog$layer, folded)
     if ("source_variable" %in% names(catalog)) {
       hit <- hit | .column_equals(catalog$source_variable, folded)
     }
@@ -68,7 +70,9 @@
     if (!any(hit)) unknown <- c(unknown, key) else keep <- keep | hit
   }
   if (length(unknown)) {
-    .choice_error("variable", unknown, sort(unique(catalog$variable)))
+    choices <- sort(unique(c(catalog$variable, catalog$source_variable, catalog$layer)))
+    choices <- choices[nzchar(choices)]
+    .choice_error("variable", unknown, choices)
   }
   keep
 }
@@ -209,14 +213,19 @@
 #' Filters the catalog. Nothing is downloaded. `variable` is the package name
 #' such as `sea_water_temperature` or `sea_water_salinity`. Long names,
 #' standard names, folder names, and short CF tokens (`thetao`) are accepted as
-#' aliases. `predictor` accepts tokens (`ltmin`) and labels
-#' (`"Long-term minimum"`). `depth` accepts metres, `"surface"`, `"bottom"`,
-#' `"bottom_min"`, `"bottom_mean"`, and `"bottom_max"`. `period` accepts
-#' `"2010_2019"` or `c(2010, 2019)`.
+#' aliases. Geomorphologic products are listed under
+#' `geomorphologic_features`; product stems such as `slope` or
+#' `bathymetry_mean` are also accepted. `predictor` accepts tokens (`ltmin`)
+#' and labels (`"Long-term minimum"`). `depth` accepts metres, `"surface"`,
+#' `"bottom"`, `"bottom_min"`, `"bottom_mean"`, and `"bottom_max"`. `period`
+#' accepts `"2010_2019"` or `c(2010, 2019)`.
 #'
-#' @param variable Package variable name (`sea_water_temperature`), or an alias.
+#' @param variable Package variable name (`sea_water_temperature`), geomorphologic
+#'   product stem (`slope`), or an alias.
 #' @param predictor Predictor token or label.
 #' @param depth Depth in metres, or a bottom-layer name.
+#' @param layer Climate depth token (`layer0`) or geomorphologic product stem
+#'   (`slope`). Matching ignores case.
 #' @param model Climate model name. Matching ignores case.
 #' @param experiment Experiment name, such as `"baseline"` or `"ssp126"`.
 #' @param period Period token, such as `"2010_2019"`, or `c(start, end)`.
@@ -239,11 +248,13 @@
 #'   period = "2090_2099",
 #'   resolution = 0.05
 #' )
+#' marestrata_layers(variable = "geomorphologic_features", layer = "slope")
 #' }
 marestrata_layers <- function(
     variable = NULL,
     predictor = NULL,
     depth = NULL,
+    layer = NULL,
     model = NULL,
     experiment = NULL,
     period = NULL,
@@ -271,6 +282,10 @@ marestrata_layers <- function(
     keep <- keep & depth_keep
   }
 
+  if (!is.null(layer)) {
+    layers <- .match_catalog_tokens(layer, catalog$layer, "layer")
+    keep <- keep & catalog$layer %in% layers
+  }
   if (!is.null(model)) {
     models <- .match_catalog_tokens(model, catalog$model, "model")
     keep <- keep & catalog$model %in% models
