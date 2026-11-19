@@ -152,32 +152,33 @@ Geomorphologic products (`variable = "geomorphologic_features"`). The product st
 | `mri-esm2-0` | MRI-ESM2-0 |
 | `ukesm1-0-ll` | UKESM1-0-LL |
 
-## Layers
+## Depth
 
-Climate depth layers in the filename (`layer`), also selectable with `depth`:
+Values for the `depth` argument (metres, or a bottom-layer name):
 
-| Layer | Meaning |
+| Depth | Meaning |
 | --- | --- |
-| `layer0` | Surface (0 m); also `"surface"` or `depth = 0` |
-| `layer25` | 25 m |
-| `layer50` | 50 m |
-| `layer75` | 75 m |
-| `layer100` | 100 m |
-| `layer150` | 150 m |
-| `layer200` | 200 m |
-| `layer250` | 250 m |
-| `layer500` | 500 m |
-| `layer750` | 750 m |
-| `layer1000` | 1000 m |
-| `layer1500` | 1500 m |
-| `layer2000` | 2000 m |
-| `layer2500` | 2500 m |
-| `layer5000` | 5000 m |
-| `bottomlayermin` | Minimum value over the bottom layer; also `"bottom_min"` |
-| `bottomlayermean` | Mean value over the bottom layer; also `"bottom_mean"` |
-| `bottomlayermax` | Maximum value over the bottom layer; also `"bottom_max"` |
+| `0` | Surface (0 m); also `"surface"` |
+| `25` | 25 m |
+| `50` | 50 m |
+| `75` | 75 m |
+| `100` | 100 m |
+| `150` | 150 m |
+| `200` | 200 m |
+| `250` | 250 m |
+| `500` | 500 m |
+| `750` | 750 m |
+| `1000` | 1000 m |
+| `1500` | 1500 m |
+| `2000` | 2000 m |
+| `2500` | 2500 m |
+| `5000` | 5000 m |
+| `"bottom_min"` | Minimum value over the bottom layer |
+| `"bottom_mean"` | Mean value over the bottom layer |
+| `"bottom_max"` | Maximum value over the bottom layer |
+| `"bottom"` | All three bottom layers |
 
-`"bottom"` selects all three bottom layers. Geomorphologic product stems are also stored in `layer` (see above).
+Geomorphologic product stems are selected with `layer` (see above), not `depth`.
 
 ## Predictors
 
