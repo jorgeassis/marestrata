@@ -13,6 +13,21 @@
   bottom_max = "bottomlayermax"
 )
 
+# Named-vector lookups like data_layers[[p]]["predictor"] return NA when the
+# key is absent. Treat missing-only inputs as an unset filter.
+.optional_arg <- function(values) {
+  if (is.null(values)) return(NULL)
+  if (length(values) == 0L) return(NULL)
+  if (all(is.na(values))) return(NULL)
+  values <- values[!is.na(values)]
+  if (is.character(values) || is.factor(values)) {
+    text <- trimws(as.character(values))
+    values <- values[nzchar(text)]
+  }
+  if (length(values) == 0L) return(NULL)
+  values
+}
+
 .require_text <- function(values, arg_name) {
   if (length(values) == 0L) {
     stop("`", arg_name, "` must contain at least one value.", call. = FALSE)
@@ -25,6 +40,10 @@
     stop("`", arg_name, "` must not contain blank values.", call. = FALSE)
   }
   text
+}
+
+.has_value <- function(values) {
+  !is.na(values) & nzchar(as.character(values))
 }
 
 .choice_error <- function(label, unknown, choices) {
@@ -264,11 +283,26 @@ marestrata_layers <- function(
   catalog <- if (is.null(catalog)) marestrata_catalog() else .normalize_catalog(catalog)
   keep <- rep(TRUE, nrow(catalog))
 
+  variable <- .optional_arg(variable)
+  predictor <- .optional_arg(predictor)
+  depth <- .optional_arg(depth)
+  layer <- .optional_arg(layer)
+  model <- .optional_arg(model)
+  experiment <- .optional_arg(experiment)
+  period <- .optional_arg(period)
+  resolution <- .optional_arg(resolution)
+  period_type <- .optional_arg(period_type)
+  if (is.null(resolution)) resolution <- 0.05
+  if (is.null(period_type)) period_type <- "decadal"
+
   variable_rows <- .resolve_variable_rows(variable, catalog)
   if (!is.null(variable_rows)) keep <- keep & variable_rows
 
   predictors <- .resolve_predictors(predictor, catalog)
-  if (!is.null(predictors)) keep <- keep & tolower(catalog$predictor) %in% tolower(predictors)
+  if (!is.null(predictors)) {
+    has_predictor <- .has_value(catalog$predictor)
+    keep <- keep & (!has_predictor | tolower(catalog$predictor) %in% tolower(predictors))
+  }
 
   depths <- .resolve_depth(depth)
   if (!is.null(depths)) {
@@ -278,6 +312,8 @@ marestrata_layers <- function(
     }
     if (length(depths$layers)) depth_keep <- depth_keep | catalog$layer %in% depths$layers
     if (isTRUE(depths$bottom)) depth_keep <- depth_keep | grepl("^bottomlayer", catalog$layer)
+    # Static products have no depth; keep them when a depth filter is set.
+    depth_keep <- depth_keep | (catalog$variable == "geomorphologic_features")
     keep <- keep & depth_keep
   }
 
@@ -287,14 +323,19 @@ marestrata_layers <- function(
   }
   if (!is.null(model)) {
     models <- .match_catalog_tokens(model, catalog$model, "model")
-    keep <- keep & catalog$model %in% models
+    has_model <- .has_value(catalog$model)
+    keep <- keep & (!has_model | catalog$model %in% models)
   }
   if (!is.null(experiment)) {
     experiments <- .match_catalog_tokens(experiment, catalog$experiment, "experiment")
-    keep <- keep & catalog$experiment %in% experiments
+    has_experiment <- .has_value(catalog$experiment)
+    keep <- keep & (!has_experiment | catalog$experiment %in% experiments)
   }
   periods <- .normalize_period(period, catalog$period)
-  if (!is.null(periods)) keep <- keep & catalog$period %in% periods
+  if (!is.null(periods)) {
+    has_period <- .has_value(catalog$period)
+    keep <- keep & (!has_period | catalog$period %in% periods)
+  }
 
   resolutions <- .resolve_resolution(resolution)
   if (!is.null(resolutions)) {

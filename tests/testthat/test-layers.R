@@ -144,6 +144,27 @@ test_that("the bundled catalog has one row per published layer", {
   expect_true(all(grepl("\\.tif$", catalog$file[!climate], ignore.case = TRUE)))
 })
 
+test_that("missing named-vector filters are ignored for static products", {
+  catalog <- fixture_catalog()
+  # Mimic data_layers[[p]]["predictor"] when the key is absent.
+  spec <- c(
+    resolution = "0.05",
+    period_type = "decadal",
+    variable = "slope"
+  )
+  layers <- without_source(marestrata_layers(
+    variable = spec["variable"],
+    predictor = spec["predictor"],
+    depth = spec["layer"],
+    experiment = "baseline",
+    period = "2010_2019",
+    resolution = spec["resolution"],
+    catalog = catalog
+  ))
+  expect_equal(nrow(layers), 1)
+  expect_equal(layers$layer, "slope")
+})
+
 test_that("geomorphologic features can be selected by folder or product stem", {
   catalog <- fixture_catalog()
   all_features <- without_source(marestrata_layers(
