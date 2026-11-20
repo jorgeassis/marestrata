@@ -178,6 +178,12 @@ empty_records <- function() {
   )
 }
 
+.blank_token <- function(values) {
+  values <- as.character(values)
+  values[is.na(values) | !nzchar(trimws(values)) | tolower(values) == "none"] <- ""
+  values
+}
+
 records_from_json <- function(path) {
   if (!requireNamespace("jsonlite", quietly = TRUE)) {
     stop("Install jsonlite to unpack viewer/catalog.json.")
@@ -191,19 +197,36 @@ records_from_json <- function(path) {
   dim(decoded) <- dim(records)
   table <- as.data.frame(decoded, stringsAsFactors = FALSE)
   names(table) <- fields
-  data.frame(
+  out <- data.frame(
     resolution_code = table$resolution,
     period_type = table$periodType,
     folder = table$folder,
     file = table$file,
     variable = table$variable,
-    model = table$model,
-    experiment = table$experiment,
-    period = table$period,
-    layer = table$layer,
-    predictor = table$predictor,
+    model = .blank_token(table$model),
+    experiment = .blank_token(table$experiment),
+    period = .blank_token(table$period),
+    layer = .blank_token(table$layer),
+    predictor = .blank_token(table$predictor),
     stringsAsFactors = FALSE
   )
+  # Viewer catalog stores the product stem in experiment and uses none/present
+  # placeholders. Normalize to the package schema used by marestrata_layers().
+  geo <- out$folder == "geomorphologic_features"
+  if (any(geo)) {
+    for (index in which(geo)) {
+      parsed <- .parse_static_feature(out$file[index])
+      if (is.null(parsed)) next
+      out$variable[index] <- parsed$variable
+      out$model[index] <- parsed$model
+      out$experiment[index] <- parsed$experiment
+      out$period[index] <- parsed$period
+      out$layer[index] <- parsed$layer
+      out$predictor[index] <- parsed$predictor
+    }
+  }
+  out$period[geo & tolower(out$period) == "present"] <- ""
+  out
 }
 
 records_from_disk <- function(root, known) {

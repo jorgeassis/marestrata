@@ -98,6 +98,8 @@ Climate variables and the short token used in filenames (`source_variable`):
 | `eastward_sea_water_velocity` | `uo` | Eastward sea-water velocity | m s-1 |
 | `mixed_layer_thickness` | `mlotst` | Mixed-layer thickness | m |
 | `northward_sea_water_velocity` | `vo` | Northward sea-water velocity | m s-1 |
+| `sea_water_direction` | `swd` | Sea-water direction | degree |
+| `sea_water_velocity` | `swv` | Sea-water velocity | m s-1 |
 | `photosynthetically_available_radiation` | `PAR_mean` | Photosynthetically available radiation | mol m-2 day-1 |
 | `photosynthetically_available_radiation_at_bottom` | `parbottom` | Light at the bottom | mol m-2 day-1 |
 | `sea_ice_area_fraction` | `siconc` | Sea-ice area fraction | 1 |
@@ -117,9 +119,9 @@ Geomorphologic products (`variable = "geomorphologic_features"`). The product st
 | `bathymetry_mean` | Mean bathymetry |
 | `bathymetry_min` | Minimum bathymetry |
 | `coastline` | Coastline mask |
-| `distace_to_delta` | Distance to river delta |
-| `distace_to_major_cities` | Distance to major cities |
-| `distace_to_ports` | Distance to ports |
+| `distance_to_delta` | Distance to river delta |
+| `distance_to_major_cities` | Distance to major cities |
+| `distance_to_ports` | Distance to ports |
 | `distance_to_land` | Distance to land |
 | `eulittoral_zone` | Eulittoral zone (also filtered by `experiment`) |
 | `fishing_effort` | Fishing effort |
