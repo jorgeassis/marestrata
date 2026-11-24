@@ -1,9 +1,10 @@
 #' Set or return the MareStrata data source
 #'
 #' Layers are read from this location. Pass an `http://` or `https://` URL, or
-#' a local directory that contains the `MareStrata …` folders. The catalog at
-#' the source is `{source}/catalog.csv`. The environment variable
-#' `MARESTRATA_URL` is used when no source has been set in the session.
+#' a local directory that contains the `{period} {resolution}` folders
+#' (e.g. `decadal 005`). The catalog at the source is `{source}/catalog.csv`.
+#' The environment variable `MARESTRATA_URL` is used when no source has been
+#' set in the session.
 #'
 #' @param base_url Character URL or local directory. Omit it to return the
 #'   source currently in use.

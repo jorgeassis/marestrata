@@ -13,11 +13,11 @@ devtools::install("marestrata")
 
 ## Use
 
-Set the data source once. It can be an HTTP(S) URL or a local directory that contains the MareStrata folders. The catalog at that source is `catalog.csv`. `marestrata_layers()` only filters the catalog. `marestrata_load()` opens the GeoTIFFs.
+Set the data source once. It can be an HTTP(S) URL or a local directory that contains folders such as `decadal 005` and `decadal 025`. The catalog at that source is `catalog.csv`. `marestrata_layers()` only filters the catalog. `marestrata_load()` opens the GeoTIFFs.
 
 ```r
 # Local archive
-marestrata_source("/data/marestrata")
+marestrata_source("/Volumes/JellyFish/marestrata")
 
 # Or a web domain
 # marestrata_source("https://data.example.org/marestrata")

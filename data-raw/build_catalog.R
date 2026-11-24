@@ -1,9 +1,8 @@
 # Build the MareStrata layer catalog.
 #
 # By default this unpacks viewer/catalog.json. Set MARESTRATA_ROOT to a data
-# volume to scan MareStrata folders instead. Local volumes that still use the
-# previous folder names are scanned, but catalog paths are written as
-# MareStrata 005 / MareStrata 025.
+# volume to scan `{period} {res}` folders instead, e.g. `decadal 005`.
+# Catalog paths are written as `decadal 005/sea_water_temperature/….tif`.
 #
 # Writes:
 #   marestrata/inst/extdata/catalog.csv.gz
@@ -112,19 +111,8 @@ resolution_number <- function(code) {
   ifelse(code %in% c("005", "5", "0.05"), 0.05, ifelse(code %in% c("025", "25", "0.25"), 0.25, NA_real_))
 }
 
-.product_dir <- function(resolution_code) {
-  sprintf("MareStrata %s", resolution_code)
-}
-
-.scan_product_dir <- function(root, resolution_code) {
-  candidates <- c(
-    .product_dir(resolution_code),
-    sprintf("BLUE-ARRAY %s", resolution_code)
-  )
-  for (name in candidates) {
-    if (dir.exists(file.path(root, name))) return(name)
-  }
-  NULL
+.period_resolution_dir <- function(period_type, resolution_code) {
+  paste(period_type, resolution_code)
 }
 
 empty_records <- function() {
@@ -234,10 +222,8 @@ records_from_disk <- function(root, known) {
   period_types <- c("decadal", "annual")
   rows <- list()
   for (resolution in resolutions) {
-    product <- .scan_product_dir(root, resolution)
-    if (is.null(product)) next
     for (period_type in period_types) {
-      directory <- file.path(root, product, period_type)
+      directory <- file.path(root, .period_resolution_dir(period_type, resolution))
       if (!dir.exists(directory)) next
       folders <- list.dirs(directory, full.names = FALSE, recursive = FALSE)
       folders <- folders[!startsWith(folders, ".")]
@@ -315,7 +301,7 @@ assemble_catalog <- function(records, variables) {
     standard_name[static & is.na(standard_name)] <- records$variable[static & is.na(standard_name)]
   }
   catalog <- data.frame(
-    path = paste(.product_dir(records$resolution_code), records$period_type, records$folder, records$file, sep = "/"),
+    path = paste(.period_resolution_dir(records$period_type, records$resolution_code), records$folder, records$file, sep = "/"),
     resolution = resolution_number(records$resolution_code),
     period_type = records$period_type,
     variable = records$folder,

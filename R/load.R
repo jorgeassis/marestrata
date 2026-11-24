@@ -54,9 +54,6 @@
 
 .resolve_local_path <- function(location) {
   if (file.exists(location)) return(location)
-  # Temporary bridge while local volumes still use the previous folder names.
-  alt <- sub("(^|/)MareStrata ", "\\1BLUE-ARRAY ", location)
-  if (!identical(alt, location) && file.exists(alt)) return(alt)
   location
 }
 
